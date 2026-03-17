@@ -25,8 +25,18 @@ final class RouteMatcher implements HandlerMatcher
         $method = $request->getMethod();
         $path = $request->getUri()->getPath();
 
+        $upgradeHeader = (string) $request->getHeaderLine('Upgrade');
+        $connectionHeader = (string) $request->getHeaderLine('Connection');
+        $isWsUpgrade = strtolower($upgradeHeader) === 'websocket'
+            && stripos($connectionHeader, 'upgrade') !== false;
+        $requestProtocol = $isWsUpgrade ? 'ws' : 'http';
+
         foreach ($handlers as $handler) {
             if (!$handler->config instanceof RouteConfig) {
+                continue;
+            }
+
+            if ($handler->config->protocol !== $requestProtocol) {
                 continue;
             }
 
@@ -43,7 +53,7 @@ final class RouteMatcher implements HandlerMatcher
                     $scope,
                     $request,
                     new RouteParams($params),
-                    new QueryParams($request->getQueryParams() ?? []),
+                    new QueryParams($request->getQueryParams()),
                     $handler->config,
                 );
 

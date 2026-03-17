@@ -19,7 +19,11 @@ final readonly class Route implements Scopeable
     public function __construct(
         public Closure $fn,
         public RouteConfig $config = new RouteConfig(),
-    ) {
+    ) {}
+
+    public static function of(callable $fn, ?RouteConfig $config = null): self
+    {
+        return new self($fn(...), $config);
     }
 
     public function __invoke(Scope $scope): mixed

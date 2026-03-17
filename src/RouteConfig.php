@@ -31,6 +31,7 @@ final class RouteConfig extends HandlerConfig
         public private(set) array $methods = ['GET'],
         public private(set) string $pattern = '',
         public private(set) array $paramNames = [],
+        public private(set) string $protocol = 'http',
         array $middleware = [],
         array $tags = [],
         int $priority = 0,
@@ -46,8 +47,11 @@ final class RouteConfig extends HandlerConfig
      *
      * @param string|list<string> $method
      */
-    public static function compile(string $path, string|array $method = 'GET'): self
-    {
+    public static function compile(
+        string $path,
+        string|array $method = 'GET',
+        string $protocol = 'http',
+    ): self {
         $methods = is_array($method) ? $method : [$method];
         $methods = array_values(array_map(strtoupper(...), $methods));
 
@@ -68,6 +72,7 @@ final class RouteConfig extends HandlerConfig
             methods: $methods,
             pattern: $pattern,
             paramNames: $paramNames,
+            protocol: $protocol,
         );
     }
 
@@ -96,6 +101,13 @@ final class RouteConfig extends HandlerConfig
         }
 
         return $params;
+    }
+
+    public function withProtocol(string $protocol): self
+    {
+        $clone = clone $this;
+        $clone->protocol = $protocol;
+        return $clone;
     }
 
     /** @param string|list<string> $method */
